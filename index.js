@@ -1,4 +1,10 @@
 const caixas = document.querySelectorAll(".caixa")
+const statusBox = document.querySelector(".status")
+const res = document.querySelector('.resultado')
+const btnStart = document.querySelector(".btn-start")
+
+// variavel de controle
+let jogoComecou = false
 let jogadorAtual = 'X'
 let statsGame = ['', '', '', '', '', '', '', '', ''] 
 
@@ -15,21 +21,34 @@ const winningConditions = [
 ];
 
 function handleCellClick(evento) {
-    const elemento = evento.target
-    const elemIndex = parseInt(elemento.getAttribute('data-index'))
+    if (jogoComecou) {
+        const elemento = evento.target
 
-    // adiciono a jogada do jogador atual 
-    statsGame[elemIndex] = jogadorAtual
+        if (elemento.textContent !== '') return
 
-    // adiciono a jogada na tela
-    elemento.textContent = jogadorAtual
+        const elemIndex = parseInt(elemento.getAttribute('data-index'))
 
-    if(checaVitoria()) {
-        console.log("venceu!")
-    } else {
-        jogadorAtual = jogadorAtual === 'X' ? 'O' : 'X'
+        // adiciono a jogada do jogador atual 
+        statsGame[elemIndex] = jogadorAtual
+
+        // adiciono a jogada na tela
+        elemento.textContent = jogadorAtual
+
+        switch (jogadorAtual) {
+            case 'X':
+                statusBox.textContent = 'Vez do Jogador O'
+                break
+            case 'O':
+                statusBox.textContent = "Vez do Jogador X"
+                break
+        }
+
+        if(checaVitoria()) {
+            fimJogo(jogadorAtual)
+        } else {
+            jogadorAtual = jogadorAtual === 'X' ? 'O' : 'X'
+        } 
     }
-
 }
 
 function checaVitoria() {
@@ -41,4 +60,32 @@ function checaVitoria() {
     })
 }
 
+function fimJogo(jogador) {
+    jogoComecou = false
+    statsGame = ['', '', '', '', '', '', '', '', ''] 
+    jogadorAtual = 'X'
+    statusBox.textContent = 'Fim de Jogo'
+    btnStart.disabled = false
+    
+    switch (jogador) {
+        case 'X':
+            res.textContent = 'Jogador X venceu!!!'
+            break
+        case 'O':
+            res.textContent = "Jogador O venceu!!!"
+            break
+    }
+}
+
+
 caixas.forEach(cell => cell.addEventListener("click", handleCellClick))
+
+btnStart.addEventListener("click",() => {
+    jogoComecou = true
+    btnStart.disabled = true
+    caixas.forEach(caixa => {
+        caixa.textContent = '';  // Limpa o texto da célula
+    });
+    statusBox.textContent = "Jogo iniciou!"
+    res.textContent = "Sem vitória nenhuma"
+})
